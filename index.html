@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Condoleanceboekje</title>
+  <style>
+    :root{
+      --openW: min(92vw, 1000px);
+      --closedW: min(46vw, 500px);
+      --shadow: 0 18px 45px rgba(0,0,0,.22);
+      --radius: 10px;
+    }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:#f3f3f3;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      box-sizing:border-box;
+    }
+    .stage{
+      width:100%;
+      display:grid;
+      place-items:center;
+      gap:14px;
+    }
+    .hint{
+      color:#333;
+      font-size:14px;
+      opacity:.8;
+      text-align:center;
+    }
+    .book{
+      position:relative;
+      width: var(--closedW);
+      aspect-ratio: 573 / 809; /* cover */
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: width 900ms ease, aspect-ratio 900ms ease;
+      perspective: 1800px;
+    }
+    .book.open{
+      width: var(--openW);
+      aspect-ratio: 1145 / 809; /* spread */
+    }
+    .spread, .cover{
+      position:absolute;
+      inset:0;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      background:#fff;
+    }
+    .spread img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    /* Cover behaves like a page that flips open */
+    .cover{
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      transition: transform 900ms ease, width 900ms ease, left 900ms ease, right 900ms ease;
+      backface-visibility: hidden;
+    }
+    .cover img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    /* CLOSED: only cover visible */
+    .book:not(.open) .spread{
+      opacity:0;
+      pointer-events:none;
+      transition: opacity 250ms ease;
+    }
+    .book:not(.open) .cover{
+      width:100%;
+      left:0;
+      right:auto;
+      transform:none;
+    }
+
+    /* OPEN: spread visible + cover on right half flips left */
+    .book.open .spread{
+      opacity:1;
+      transition: opacity 250ms ease 120ms;
+    }
+    .book.open .cover{
+      width:50%;
+      left:auto;
+      right:0;
+      transform: rotateY(-170deg);
+      box-shadow: none; /* shadow handled by spread */
+    }
+
+    /* small screens: keep it readable */
+    @media (max-width: 520px){
+      :root{
+        --openW: 96vw;
+        --closedW: 72vw;
+      }
+      .hint{ font-size:13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="book" id="book" aria-label="Condoleanceboekje">
+      <div class="spread" aria-hidden="true">
+        <img src="inside.jpg" alt="Binnenkant" />
+      </div>
+      <div class="cover" aria-hidden="true">
+        <img src="cover.jpg" alt="Voorpagina" />
+      </div>
+    </div>
+    <div class="hint" id="hint">Klik (of tik) op de voorpagina om te openen.</div>
+  </div>
+
+  <script>
+    const book = document.getElementById('book');
+    const hint = document.getElementById('hint');
+
+    function setHint(){
+      hint.textContent = book.classList.contains('open')
+        ? 'Klik nogmaals om weer te sluiten.'
+        : 'Klik (of tik) op de voorpagina om te openen.';
+    }
+
+    book.addEventListener('click', () => {
+      book.classList.toggle('open');
+      setHint();
+    });
+
+    // Start gesloten
+    setHint();
+  </script>
+</body>
+</html>
